@@ -19,17 +19,24 @@ void motors::ahead(){
 void motors::back(){
     setback();
 }
-void motors::right(float targetAngle){
-    setright();
-    // while()
+void motors::right(){
+    if(targetAngle==360){
+        targetAngle=0;
+    }
+    targetAngle=targetAngle+90;
+    rotate(targetAngle);
 }
-void motors::left(float targetAngle){
-    setleft();
+void motors::left(){
+    if(targetAngle==0){
+        targetAngle=360;
+    }
+    targetAngle=targetAngle-90;
+    rotate(targetAngle);
 }
-void motors::rotate(float targetAngle){
-    setSpeed(90);
+void motors::rotate(float deltaAngle){
+    targetAngle=deltaAngle;
     getAngle();
-    float rightAngularDistance, leftAngularDistance,minInterval,maxInterval,tolerance=2;
+    float rightAngularDistance, leftAngularDistance,minInterval,maxInterval,tolerance=1;
     bool hexadecimal;
     //calculate angular distance in both directions
     if(targetAngle>=angle){
@@ -52,10 +59,12 @@ void motors::rotate(float targetAngle){
         setright();
         if(hexadecimal==true){
             while(angle<minInterval||angle>maxInterval){
+                changeSpeedMove(0.5,true);
                 Serial.println(angle);
                 getAngle();}
         }else{
             while(z_rotation<minInterval||z_rotation>maxInterval){
+                changeSpeedMove(0.5,true);
                 Serial.println(angle);
                 getAngle();}
         }
@@ -63,15 +72,28 @@ void motors::rotate(float targetAngle){
         setleft();
         if(hexadecimal==true){
             while(angle<minInterval||angle>maxInterval){
+                changeSpeedMove(0.5,true);
                 Serial.println(angle);
                 getAngle();}
         }else{
             while(z_rotation<minInterval||z_rotation>maxInterval){
+                changeSpeedMove(0.5,true);
                 Serial.println(angle);
                 getAngle();}
         }
     }
     stop();
+}
+void motors::changeSpeedMove(float constant,bool rotate){
+    float speed;
+    float minSpeed=40;
+    if(rotate==true){
+        speed=minSpeed+constant*(abs(targetAngle-angle));
+        setSpeed(speed);
+    }else{
+        //speed=minSpeed+constant*(abs(target-picks));
+    }
+
 }
 void motors::setSpeed(uint8_t speed){
     motor1.setSpeed(speed);
@@ -109,6 +131,7 @@ void motors::stop(){
     motor2.stop();
     motor3.stop();
     motor4.stop();
+    setSpeed(0);
 }
 void motors::showSpeeds(){
     double speedM1=motor1.getSpeed();

@@ -5,7 +5,7 @@
 #include "PID.H"
 class motors{
 private:
-    
+    float targetAngle=0;
     PID myPID;
 public:
     motor motor1;
@@ -22,10 +22,11 @@ public:
     void stop();
     void ahead();
     void back();
-    void left(float);
-    void right(float);
+    void left();
+    void right();
     void showSpeeds();
     void rotate(float);
+    void changeSpeedMove(float,bool);
 
 };
 #endif

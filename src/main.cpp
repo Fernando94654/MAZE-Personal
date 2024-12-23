@@ -20,9 +20,19 @@ void setup() {
   initializeMPU6050();
 }
 void loop() {
-  targetAngle=targetAngle+90;
-  myMotors.rotate(targetAngle);
-  delay(5000);
+  // targetAngle=targetAngle+90;
+  // myMotors.rotate(targetAngle);
+  // delay(5000);
+  for(int i=0;i<2;i++){
+    myMotors.right();
+    delay(3000);
+  }
+  for(int i=0;i<2;i++){
+    myMotors.left();
+    delay(3000);
+  }
+  
+
 
     // Serial.println("hola");
   // myMotors.ahead();
