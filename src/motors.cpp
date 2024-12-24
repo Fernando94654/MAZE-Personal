@@ -36,7 +36,7 @@ void motors::left(){
 void motors::rotate(float deltaAngle){
     targetAngle=deltaAngle;
     getAngle();
-    float rightAngularDistance, leftAngularDistance,minInterval,maxInterval,tolerance=1;
+    float currentAngle,rightAngularDistance, leftAngularDistance,minInterval,maxInterval,tolerance=1;
     bool hexadecimal;
     //calculate angular distance in both directions
     if(targetAngle>=angle){
@@ -55,32 +55,14 @@ void motors::rotate(float deltaAngle){
         hexadecimal=false;
     }
     //decide shortest route and rotate
-    if(rightAngularDistance<=leftAngularDistance){
-        setright();
-        if(hexadecimal==true){
-            while(angle<minInterval||angle>maxInterval){
-                changeSpeedMove(0.5,true);
-                Serial.println(angle);
-                getAngle();}
-        }else{
-            while(z_rotation<minInterval||z_rotation>maxInterval){
-                changeSpeedMove(0.5,true);
-                Serial.println(angle);
-                getAngle();}
-        }
-    }else{
-        setleft();
-        if(hexadecimal==true){
-            while(angle<minInterval||angle>maxInterval){
-                changeSpeedMove(0.5,true);
-                Serial.println(angle);
-                getAngle();}
-        }else{
-            while(z_rotation<minInterval||z_rotation>maxInterval){
-                changeSpeedMove(0.5,true);
-                Serial.println(angle);
-                getAngle();}
-        }
+    (rightAngularDistance<=leftAngularDistance) ? setright():setleft();
+
+    currentAngle= hexadecimal ? angle:z_rotation;
+    while (currentAngle<minInterval||currentAngle>maxInterval){
+        changeSpeedMove(0.5,true);
+        getAngle();
+        currentAngle= hexadecimal ? angle:z_rotation;
+        Serial.println(angle);
     }
     stop();
 }
