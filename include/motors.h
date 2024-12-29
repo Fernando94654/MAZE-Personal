@@ -12,9 +12,9 @@ public:
     motor motor2;
     motor motor3;
     motor motor4;
-    motors(int,int,int,int,int,int,int,int,int,int,int,int);
+    motors();
     void PID_speed(double, double, int);
-    void setSpeed(uint8_t);
+    void setSpeed(int);
     void setahead();
     void setback();
     void setleft();
@@ -25,8 +25,10 @@ public:
     void left();
     void right();
     void showSpeeds();
+    float calculateAngularDistance();
     void rotate(float);
-    void changeSpeedMove(float,bool);
+    float changeSpeedMove(float,bool,int);
+    void resetTics();
 
 };
 #endif

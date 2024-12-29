@@ -7,9 +7,9 @@ PID::PID(double kp_,double ki_,double kd_){
     kd=kd_;
 }
 PID::PID(){
-    kp=2.0;
+    kp=3.5;
     ki=0.1;
-    kd=1.0;
+    kd=0.8;
 }
 double PID::calculate_PID(double setpoint, double input){
     double current_time=millis();
@@ -26,5 +26,5 @@ double PID::calculate_PID(double setpoint, double input){
         last_time=current_time;
         return output;
     }
-    return 0.0;
+    return 0;
 }

@@ -2,20 +2,26 @@
 #define MOTOR_H
 #include <Arduino.h>
 
+void interruption();
+
 class motor{
 private:
-   int in1;
-   int in2;
-   int enable;
-   double speed;
+    int in1;
+    int in2;
+    int enable;
+    double speed;
+    
 public:
-    void initialize(int,int,int);
+    volatile int tics;
+    void initialize(int,int,int,int);
     motor();
-    void setSpeed(uint8_t);
+    void setSpeed(int);
     void ahead();
     void back();
     void stop();
     double getSpeed();
+    void resetTics();
+    int getTics();
 
 };
 #endif

@@ -1,20 +1,34 @@
 #include "motors.h"
 #include "MPU6050.h"
-motors::motors(int m1P1,int m1P2,int m2P1,int m2P2,int m3P1,int m3P2,int m4P1,int m4P2,int en1,int en2,int en3,int en4){
-    motor1.initialize(m1P1,m1P2,en1);
-    motor2.initialize(m2P1,m2P2,en2);
-    motor3.initialize(m3P1,m3P2,en3);
-    motor4.initialize(m4P1,m4P2,en4);
+#include "Pins.h"
+
+motors::motors(){
+    motor1.initialize(IN1_MT1,IN2_MT1,ENA_MT1,1);
+    motor2.initialize(IN1_MT2,IN2_MT2,ENA_MT2,2);
+    motor3.initialize(IN1_MT3,IN2_MT3,ENA_MT3,3);
+    motor4.initialize(IN1_MT4,IN2_MT4,ENA_MT4,4);
+    targetAngle=0;
 }
 void motors::PID_speed(double setpoint,double angle, int reference_speed){
+    //double input=setpoint+calculateAngularDistance();
     double output=myPID.calculate_PID(setpoint,angle);
-    double right_speed=reference_speed-output;
-    double left_speed=reference_speed+output;
+    int right_speed=reference_speed-output;
+    int left_speed=reference_speed+output;
     motor1.setSpeed(left_speed); motor2.setSpeed(right_speed); 
     motor3.setSpeed(left_speed); motor4.setSpeed(right_speed);
 }
 void motors::ahead(){
+    int targetDistance=1800;
+    resetTics();
     setahead();
+    while(motor1.tics<targetDistance){
+        getAngle();
+        //float speed=changeSpeedMove(0.5,false,targetDistance);
+        PID_speed(targetAngle,angle,90);
+        showSpeeds();
+    }
+    stop();
+    resetTics();
 }
 void motors::back(){
     setback();
@@ -32,6 +46,17 @@ void motors::left(){
     }
     targetAngle=targetAngle-90;
     rotate(targetAngle);
+}
+float motors::calculateAngularDistance(){
+    float rightAngularDistance, leftAngularDistance;
+    if(targetAngle>=angle){
+        rightAngularDistance=targetAngle-angle;
+        leftAngularDistance=angle+(360-targetAngle);
+    }else{
+        rightAngularDistance=(360-angle)+targetAngle;
+        leftAngularDistance=angle-targetAngle;
+    }
+    return (rightAngularDistance<=leftAngularDistance) ? rightAngularDistance:-leftAngularDistance;
 }
 void motors::rotate(float deltaAngle){
     targetAngle=deltaAngle;
@@ -54,30 +79,30 @@ void motors::rotate(float deltaAngle){
         minInterval=-tolerance,maxInterval=tolerance;
         hexadecimal=false;
     }
-    //decide shortest route and rotate
+    //decide shortest route and rotate("?" es un operador ternario para remplazar if-else)
     (rightAngularDistance<=leftAngularDistance) ? setright():setleft();
-
-    currentAngle= hexadecimal ? angle:z_rotation;
+    currentAngle=hexadecimal ? angle:z_rotation;
     while (currentAngle<minInterval||currentAngle>maxInterval){
-        changeSpeedMove(0.5,true);
+        changeSpeedMove(0.5,true,0);
         getAngle();
         currentAngle= hexadecimal ? angle:z_rotation;
         Serial.println(angle);
     }
     stop();
 }
-void motors::changeSpeedMove(float constant,bool rotate){
+float motors::changeSpeedMove(float constant,bool rotate,int targetDistance){
     float speed;
     float minSpeed=40;
     if(rotate==true){
         speed=minSpeed+constant*(abs(targetAngle-angle));
         setSpeed(speed);
+        return 0;
     }else{
-        //speed=minSpeed+constant*(abs(target-picks));
+        speed=minSpeed+constant*(abs(targetDistance-motor1.tics));
+        return speed;
     }
-
 }
-void motors::setSpeed(uint8_t speed){
+void motors::setSpeed(int speed){
     motor1.setSpeed(speed);
     motor2.setSpeed(speed);
     motor3.setSpeed(speed);
@@ -126,4 +151,9 @@ void motors::showSpeeds(){
     Serial.print("Motor3:"); Serial.print(speedM3);
     Serial.print("Motor4:"); Serial.println(speedM4);
 }
-
+void motors::resetTics(){
+    motor1.resetTics();
+    motor2.resetTics();
+    motor3.resetTics();
+    motor4.resetTics();
+}

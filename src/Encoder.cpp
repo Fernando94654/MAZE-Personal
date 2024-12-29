@@ -1,8 +1,10 @@
 #include "Encoder.h"
+#include "motors.h"
+motors myMotors;
 
-void interruption(){
-    ticks+=1;
+void frontLeftEncoder(){
+    myMotors.motor1.tics+=1;
 }
-Encoder::Encoder(int encoderPin){
-    attachInterrupt(digitalPinToInterrupt(encoderPin),interruption,RISING);
+void frontRightEncoder(){
+    myMotors.motor2.tics+=1;
 }
