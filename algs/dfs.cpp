@@ -31,9 +31,6 @@ void search(bool visited[rows][cols], int x, int y, int directions[4][2], int ba
         int newX = x + directions[0][0];
         int newY = y + directions[0][1];
         if((newX >= 0 && newY >=0 && newX<=rows && newY <= cols) && (paredAdelante() == false)){
-            for(int j = 0; j< i-; j++){
-                left();
-            }
             bool negro = cuadroNegro();
             if(negro == false){
                 if(visited[newX][newY] == false){
