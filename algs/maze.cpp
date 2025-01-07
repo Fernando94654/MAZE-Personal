@@ -30,10 +30,10 @@ Maze::Maze(vector<vector<char> > maze, int start_x, int start_y, int alg){
     if (alg == 1){
         DFS(maze, visited, start_x, start_y, directions, backstep, count, pathFound);
     }else if(alg == 2){ 
-
+        dijkstra(maze, start_x, start_y);
     }
-
 }
+
 void Maze::printMaze(vector<vector<char> > mazeToPrint) {
     for (int i = 0; i < mazeToPrint.size(); ++i) {
         for (int j = 0; j < mazeToPrint[i].size(); j++) {
@@ -50,7 +50,7 @@ void Maze::DFS(vector<vector<char> >& maze, vector<vector<bool> > visited, int x
         count++;
         backstep[x][y] = count;
     }
-    if(x== rows-1 && y == cols-1){
+    if(x== rows-2 && y == cols-2){
         pathFound = true; 
     }
     for (int i = 0; i<4; i++){
@@ -58,9 +58,7 @@ void Maze::DFS(vector<vector<char> >& maze, vector<vector<bool> > visited, int x
         int newY = y + directions[0][1];
         if((newX >= 0 && newY >=0 && newX<=rows && newY <= cols) && (paredAdelante() == false)){
             if (visited[newX][newY] == false){
-                ahead();
                 DFS(maze, visited, newX, newY, directions, backstep, count, pathFound);
-                back();
             }else{
                 visited[newX][newY] = true;
             }
@@ -96,12 +94,6 @@ void Maze::girar(int directions[4][2]){
     left();
 }
 
-void Maze::ahead(){}
-void Maze::back(){}
-void Maze::left(){}
-void Maze::right(){}
-bool Maze::paredAdelante(){}
-
 // Struct for the priority queue (min-heap)
 struct Node {
     int x, y, dist;
@@ -112,7 +104,7 @@ struct Node {
 };
 
 // Dijkstra's Algorithm for solving the maze
-void Maze::dijkstra(vector<vector<char> >& maze, pair<int, int> start, pair<int, int> end) {
+void Maze::dijkstra(vector<vector<char> >& maze, int x, int y) {
     int rows = 3;
     int cols = 5;
     // Distance matrix initialized to infinity

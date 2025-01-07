@@ -1,3 +1,6 @@
+#include <iostream>
+using namespace std;
+
 void ahead(){}
 void back(){}
 void left(){}
@@ -18,7 +21,7 @@ void girar(int directions[4][2]){
     left();
 }
 // arriba, izquierda, abajo, derecha
-void search(bool visited[rows][cols], int x, int y, int directions[4][2], int backstep[rows][cols], int& count, bool& pathFound){
+void search(vector<vector<bool> > visited, int x, int y, int directions[4][2], vector<vector<int> > backstep, int& count, bool& pathFound){
     visited[x][y] = true;
     if(!pathFound){
         count++;
@@ -49,7 +52,7 @@ void search(bool visited[rows][cols], int x, int y, int directions[4][2], int ba
         count--;
     }
 }
-void fuga(int count, int x, int y, int Mcolor, int directions[4][2], int backstep[5][3]){
+void fuga(int count, int x, int y int directions[4][2], int backstep[5][3]){
     for(int i = 0; i < count; i++){
         for (int j = 0; j < 4; j++){
             int newX = x + directions[0][0];
@@ -65,6 +68,8 @@ void fuga(int count, int x, int y, int Mcolor, int directions[4][2], int backste
     ahead();
 }
 void maze() {
+    
+    
     //adelante, izquierda, atras, derecha
     int directions[4][2] = {{0, 1}, {-1, 0}, {0, -1}, {1, 0}};
 
@@ -75,7 +80,7 @@ void maze() {
     int start_x = 0, start_y = 0;
     bool pathFound = false;
     search(visited, start_x, start_y, directions, backstep, count, pathFound);
-    fuga(count, start_x, start_y, Mcolor, directions, backstep);
+    fuga(count, start_x, start_y, directions, backstep);
 }
 
 void printMaze(const vector<vector<char> >& mazeToPrint) {
@@ -85,31 +90,4 @@ void printMaze(const vector<vector<char> >& mazeToPrint) {
         }
         cout << endl;
     }
-}
-
-int main(){
-    vector<vector<char> > maze = {
-        {'#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'},
-        {'#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#'}, // 1.
-        {'#', ' ', '#', ' ', '#', ' ', '#', '#', '#', '#', '#'},
-        {'#', ' ', '#', ' ', '#', ' ', ' ', ' ', '#', ' ', '#'}, // 3.
-        {'#', ' ', '#', '#', '#', ' ', '#', ' ', '#', '#', '#'},
-        {'#', ' ', ' ', ' ', ' ', ' ', '#', ' ', ' ', ' ', '#'}, // 5.
-        {'#', ' ', '#', '#', '#', ' ', '#', '#', ' ', ' ', '#'},
-        {'#', ' ', '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#'}, // 7.
-        {'#', ' ', '#', ' ', '#', ' ', ' ', ' ', ' ', ' ', '#'},
-        {'#', ' ', ' ', ' ', '#', ' ', ' ', ' ', ' ', ' ', '#'}, // 9.
-        {'#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'}
-        //{'#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'},
-        //{'#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#'}, // 1.
-        //{'#', ' ', '#', '#', '#', ' ', '#', '#', '#', ' ', '#'},
-        //{'#', ' ', ' ', 'r', '#', ' ', '#', 'l', ' ', ' ', '#'}, // 3.
-        //{'#', ' ', '#', '#', '#', ' ', '#', '#', '#', ' ', '#'},
-        //{'#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#'}, // 5.
-        //{'#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'}
-    };
-    rows = maze.size();
-    cols = maze[0].size();
-    maze();
-    return 0;
 }

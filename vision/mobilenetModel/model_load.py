@@ -7,9 +7,9 @@ from keras.utils import custom_object_scope
 import tensorflow_hub as hub
 #carga de modelo
 with custom_object_scope({'KerasLayer': hub.KerasLayer}):
-    model = tf.keras.models.load_model("C:\\Users\\ferna\\Documents\\vision_artificial\\entrenamientoPocosDatos\\HSU_detection_mobilenet.h5")#path
+    model = tf.keras.models.load_model("vision/HSU_detection_mobilenetv2.h5")#path
 #carga de imagen
-image=cv2.imread("C:\\Users\\ferna\\Documents\\vision_artificial\\fotos\\S.jpg")#path
+image=cv2.imread("vision/ModelHSUL/test_images/H_test.JPG")#path
 if image is None:
     print("error al cargar la imagen")
 #normalizar imagen
