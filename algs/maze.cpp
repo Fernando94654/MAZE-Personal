@@ -1,5 +1,7 @@
 #include <iostream>
 #include <map>
+#include <vector>
+#include <climits>
 using namespace std;
 
 #include "maze.h"
