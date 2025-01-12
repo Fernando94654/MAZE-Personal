@@ -3,10 +3,12 @@
 #include <Arduino.h>
 #include "motor.h"
 #include "PID.H"
+#include "ultrasonico.h"
 class motors{
 private:
     float targetAngle=0;
     PID myPID;
+    ultrasonico myUltra;
 public:
     motor motor1;
     motor motor2;
@@ -21,6 +23,8 @@ public:
     void setright();
     void stop();
     void ahead();
+    void ahead_ultra();//borrar
+    int findNearest(int,int[],int);
     void back();
     void left();
     void right();

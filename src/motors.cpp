@@ -18,17 +18,44 @@ void motors::PID_speed(double setpoint,double angle, int reference_speed){
     motor3.setSpeed(left_speed); motor4.setSpeed(right_speed);
 }
 void motors::ahead(){
-    int targetDistance=1800;
+    int targetDistance=240;
     resetTics();
     setahead();
     while(motor1.tics<targetDistance){
         getAngle();
-        //float speed=changeSpeedMove(0.5,false,targetDistance);
-        PID_speed(targetAngle,angle,90);
+        float speed=changeSpeedMove(0.5,false,targetDistance);
+        PID_speed(targetAngle,z_rotation,speed);
         showSpeeds();
     }
     stop();
     resetTics();
+}
+void motors::ahead_ultra(){
+    double distance=myUltra.getDistance();
+    int targetDistances[]={10,40,70,100};
+    int targetDistance=findNearest(distance,targetDistances,4);
+    setahead();
+    while(distance>targetDistance){
+        distance=myUltra.getDistance();
+        float speed=changeSpeedMove(2,false,targetDistance);
+        PID_speed(targetAngle,z_rotation,speed);
+        showSpeeds();
+    }
+    stop();
+}
+int motors::findNearest(int number,int numbers[],int size){
+    int nearest=numbers[0];
+    float minDifference=abs(number-numbers[0]);
+    for(int i=1;i<size;i++){
+        float currentDifference=abs(number-numbers[i]);
+        if(currentDifference<minDifference){
+            nearest=numbers[i];
+            minDifference=currentDifference;
+        }
+    }
+    nearest=nearest-30;
+    nearest=constrain(nearest,5,95);
+    return nearest;
 }
 void motors::back(){
     setback();
@@ -98,7 +125,8 @@ float motors::changeSpeedMove(float constant,bool rotate,int targetDistance){
         setSpeed(speed);
         return 0;
     }else{
-        speed=minSpeed+constant*(abs(targetDistance-motor1.tics));
+        speed=minSpeed+constant*(abs(targetDistance-myUltra.getDistance()));//motor1.tics
+        speed=constrain(speed,40,180);
         return speed;
     }
 }

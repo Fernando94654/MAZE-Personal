@@ -17,4 +17,15 @@ constexpr int encoderPins[2]={
     19,//front left //
     18//front right
 };
+constexpr int vlsPins[2]={
+    
+};
+namespace Pins{
+   const int ultrasonico[2]={
+    2,//trig
+    3,//echo
+    }; 
+}
+
+
 #endif
