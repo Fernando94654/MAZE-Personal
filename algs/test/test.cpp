@@ -5,11 +5,12 @@
 #include<climits>
 
 using namespace std;
-#include "Tile.h"
+
+#include "Tile.cpp"
 
 constexpr TileDirection directions[] = {TileDirection::kUp, TileDirection::kDown, TileDirection::kLeft, TileDirection::kRight};
 
-vector<vector<char> > maze = {
+vector<vector<char>> maze = {
         // {'#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'},
         // {'#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#'}, // 1.
         // {'#', ' ', '#', ' ', '#', ' ', '#', '#', '#', '#', '#'},
@@ -29,7 +30,7 @@ vector<vector<char> > maze = {
         {'#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#'}, // 5.
         {'#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'}
 };
-vector<vector<char> > mazeSecondLevel = {
+vector<vector<char>> mazeSecondLevel = {
     {'#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'},
     {'#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#'}, // 1.
     {'#', ' ', ' ', ' ', '#', '#', '#', ' ', ' ', ' ', '#'},
@@ -39,7 +40,7 @@ vector<vector<char> > mazeSecondLevel = {
     {'#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'}
 };
 
-void printMaze(const vector<vector<char> >& mazeToPrint) {
+void printMaze(const vector<vector<char>>& mazeToPrint) {
     for (int i = 0; i < mazeToPrint.size(); ++i) {
         for (int j = 0; j < mazeToPrint[i].size(); j++) {
             cout << mazeToPrint[i][j] << " ";
@@ -49,7 +50,7 @@ void printMaze(const vector<vector<char> >& mazeToPrint) {
 }
 
 void printPath(stack <coord> path) {
-    vector<vector<char> > newMaze = maze;
+    vector<vector<char>> newMaze = maze;
     int lastX = path.top().x;
     int lastY = path.top().y;
     path.pop();
@@ -134,7 +135,7 @@ void dijsktra(const coord& start, const coord& end, const unordered_map<coord,Ti
     return;
 }
 
-bool checkForWall(const vector<vector<char> >& maze, const TileDirection& direction, const coord& currentTileCoord) {
+bool checkForWall(const vector<vector<char>>& maze, const TileDirection& direction, const coord& currentTileCoord) {
     switch(direction) {
         case TileDirection::kRight:
             return maze[currentTileCoord.y][currentTileCoord.x + 1] == '#';
@@ -145,7 +146,6 @@ bool checkForWall(const vector<vector<char> >& maze, const TileDirection& direct
         case TileDirection::kDown:
             return maze[currentTileCoord.y - 1][currentTileCoord.x] == '#';
     }
-    return false;
 }
 
 void printMap(unordered_map<coord, Tile>& map){
@@ -160,7 +160,7 @@ void printMap(unordered_map<coord, Tile>& map){
     return;
 }
 
-int checkRamp(const vector<vector<char> >& maze, const TileDirection& direction, const coord& currentTileCoord) {
+int checkRamp(const vector<vector<char>>& maze, const TileDirection& direction, const coord& currentTileCoord) {
     int z = currentTileCoord.z;
     switch(direction) {
         case TileDirection::kRight:
@@ -243,12 +243,6 @@ void depthFirstSearch(unordered_map<coord, Tile>& map) {
                     nextTileCoord = coord{currentTileCoord.x,currentTileCoord.y-2,checkRamp(maze, direction, currentTileCoord)};
                     currentTile = &map[currentTileCoord];
                     oppositeDirection = TileDirection::kUp;
-                    break;
-                case TileDirection::kNone: // Add this case
-                    // Handle 'kNone' appropriately
-                    break;
-                default:
-                    // Handle default case
                     break;
             }
             // check if the tile has not been checked.
