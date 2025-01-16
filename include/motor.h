@@ -2,9 +2,9 @@
 #define MOTOR_H
 #include <Arduino.h>
 
-void interruption();
+// void interruption();
 
-class motor{
+class motor_{
 private:
     int in1;
     int in2;
@@ -14,7 +14,7 @@ private:
 public:
     volatile int tics;
     void initialize(int,int,int,int);
-    motor();
+    motor_();
     void setSpeed(int);
     void ahead();
     void back();

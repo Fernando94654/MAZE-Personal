@@ -2,43 +2,43 @@
 #include <Arduino.h>
 #include "Pins.h"
 #include "Encoder.h"
-void motor::initialize(int in_1,int in_2,int en,int numMotor){
+void motor_::initialize(int in_1,int in_2,int en,int numMotor){
     in1=in_1;
     in2=in_2;
     enable=en;
-    attachInterrupt(digitalPinToInterrupt(encoderPins[numMotor]),frontLeftEncoder,RISING);
-    pinMode(in1,INPUT);
-    pinMode(in2,INPUT);
+    //attachInterrupt(digitalPinToInterrupt(encoderPins[numMotor]),frontLeftEncoder,RISING);
+    pinMode(in1,OUTPUT);
+    pinMode(in2,OUTPUT);
     pinMode(enable,OUTPUT);
     
 }
 
-motor::motor(){
+motor_::motor_(){
     //default constructor
 }
-void motor::resetTics(){
+void motor_::resetTics(){
     tics=0;
 }
-int motor::getTics(){
+int motor_::getTics(){
     return tics;
 }
-void motor::setSpeed(int velocity){
+void motor_::setSpeed(int velocity){
     speed=velocity;
     speed=constrain(speed,0,255);
     analogWrite(enable,speed);
 }
-void motor::ahead(){
+void motor_::ahead(){
     digitalWrite(in1,1);
     digitalWrite(in2,0);
 }
-void motor::back(){ 
+void motor_::back(){ 
     digitalWrite(in1,0);
     digitalWrite(in2,1);
 }
-void motor::stop(){
+void motor_::stop(){
     digitalWrite(in1,0);
     digitalWrite(in2,0);
 }
-double motor::getSpeed(){
+double motor_::getSpeed(){
     return speed;
 }

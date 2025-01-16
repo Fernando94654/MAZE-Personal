@@ -3,18 +3,20 @@
 #include <Arduino.h>
 #include "motor.h"
 #include "PID.H"
-#include "ultrasonico.h"
+#include "VLX.h"
+#include "BNO.H"
+#include <SPI.h>
 class motors{
 private:
+    static constexpr uint8_t kNumberOfVlx = 5;
     float targetAngle=0;
     PID myPID;
-    ultrasonico myUltra;
+    VLX vlx[kNumberOfVlx];
 public:
-    motor motor1;
-    motor motor2;
-    motor motor3;
-    motor motor4;
+    BNO bno;
+    motor_ motor[4];//0-BACK_RIGHT//1-BACK_LEFT//2-FRONT_RIGHT//3-FRONT_LEFT
     motors();
+    void setupMotors();
     void PID_speed(double, double, int);
     void setSpeed(int);
     void setahead();
@@ -33,6 +35,9 @@ public:
     void rotate(float);
     float changeSpeedMove(float,bool,int);
     void resetTics();
+    void printAngle();
+    void setupVlx(const VlxID);
+
 
 };
 #endif

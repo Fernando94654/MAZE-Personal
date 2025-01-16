@@ -1,48 +1,68 @@
 #include "motors.h"
-#include "MPU6050.h"
 #include "Pins.h"
-
 motors::motors(){
-    motor1.initialize(IN1_MT1,IN2_MT1,ENA_MT1,1);
-    motor2.initialize(IN1_MT2,IN2_MT2,ENA_MT2,2);
-    motor3.initialize(IN1_MT3,IN2_MT3,ENA_MT3,3);
-    motor4.initialize(IN1_MT4,IN2_MT4,ENA_MT4,4);
-    targetAngle=0;
+    
+}
+void motors::setupMotors(){
+    bno.setupBNO();
+    for(int i=0;i<4;i++){
+        motor[i].initialize(Pins::digitalOne[i],Pins::digitalTwo[i],Pins::pwmPin[i],i);
+    }
+    
+    targetAngle=90;
+}
+void motors::printAngle(){
+    double angulo=bno.getOrientationX();
+    Serial.println(angulo);
 }
 void motors::PID_speed(double setpoint,double angle, int reference_speed){
     //double input=setpoint+calculateAngularDistance();
     double output=myPID.calculate_PID(setpoint,angle);
     int right_speed=reference_speed-output;
     int left_speed=reference_speed+output;
-    motor1.setSpeed(left_speed); motor2.setSpeed(right_speed); 
-    motor3.setSpeed(left_speed); motor4.setSpeed(right_speed);
+    for(int i=0;i<4;i++){
+        motor[i].setSpeed((i%2==0) ? left_speed:right_speed);
+    }
 }
+// void motors::ahead(){
+//     int targetDistance=240;
+//     resetTics();
+//     setahead();
+//     while(motor[0].tics<targetDistance){
+//         getAngle();
+//         float speed=changeSpeedMove(0.5,false,targetDistance);
+//         PID_speed(targetAngle,z_rotation,speed);
+//         showSpeeds();
+//     }
+//     stop();
+//     resetTics();
+// }
 void motors::ahead(){
     int targetDistance=240;
     resetTics();
     setahead();
-    while(motor1.tics<targetDistance){
-        getAngle();
+    while(motor[0].tics<targetDistance){
+        angle=bno.getOrientationX();
         float speed=changeSpeedMove(0.5,false,targetDistance);
-        PID_speed(targetAngle,z_rotation,speed);
+        PID_speed(targetAngle,angle,speed);
         showSpeeds();
     }
     stop();
     resetTics();
 }
-void motors::ahead_ultra(){
-    double distance=myUltra.getDistance();
-    int targetDistances[]={10,40,70,100};
-    int targetDistance=findNearest(distance,targetDistances,4);
-    setahead();
-    while(distance>targetDistance){
-        distance=myUltra.getDistance();
-        float speed=changeSpeedMove(2,false,targetDistance);
-        PID_speed(targetAngle,z_rotation,speed);
-        showSpeeds();
-    }
-    stop();
-}
+// void motors::ahead_ultra(){
+//     double distance=vlx_FL.getDistance();
+//     int targetDistances[]={10,40,70,100};
+//     int targetDistance=findNearest(distance,targetDistances,4);
+//     setahead();
+//     while(distance>targetDistance){
+//         distance=vlx_FL.getDistance();
+//         float speed=changeSpeedMove(2,false,targetDistance);
+//         PID_speed(targetAngle,z_rotation,speed);
+//         showSpeeds();
+//     }
+//     stop();
+// }
 int motors::findNearest(int number,int numbers[],int size){
     int nearest=numbers[0];
     float minDifference=abs(number-numbers[0]);
@@ -87,7 +107,7 @@ float motors::calculateAngularDistance(){
 }
 void motors::rotate(float deltaAngle){
     targetAngle=deltaAngle;
-    getAngle();
+    bno.getOrientationX();
     float currentAngle,rightAngularDistance, leftAngularDistance,minInterval,maxInterval,tolerance=1;
     bool hexadecimal;
     //calculate angular distance in both directions
@@ -111,7 +131,7 @@ void motors::rotate(float deltaAngle){
     currentAngle=hexadecimal ? angle:z_rotation;
     while (currentAngle<minInterval||currentAngle>maxInterval){
         changeSpeedMove(0.5,true,0);
-        getAngle();
+        bno.getOrientationX();
         currentAngle= hexadecimal ? angle:z_rotation;
         Serial.println(angle);
     }
@@ -119,60 +139,52 @@ void motors::rotate(float deltaAngle){
 }
 float motors::changeSpeedMove(float constant,bool rotate,int targetDistance){
     float speed;
-    float minSpeed=40;
+    float minSpeed=20;
     if(rotate==true){
         speed=minSpeed+constant*(abs(targetAngle-angle));
         setSpeed(speed);
         return 0;
     }else{
-        speed=minSpeed+constant*(abs(targetDistance-myUltra.getDistance()));//motor1.tics
-        speed=constrain(speed,40,180);
+        speed=minSpeed+constant*(abs(targetDistance-vlx[0].getDistance()));//motor1.tics
+        speed=constrain(speed,20,100);
         return speed;
     }
 }
 void motors::setSpeed(int speed){
-    motor1.setSpeed(speed);
-    motor2.setSpeed(speed);
-    motor3.setSpeed(speed);
-    motor4.setSpeed(speed);
+    for(int i=0;i<4;i++){ 
+        motor[i].setSpeed(speed);}
 }
 void motors::setahead(){
-    motor1.ahead();
-    motor2.ahead();
-    motor3.ahead();
-    motor4.ahead();
+    for(int i=0;i<4;i++){ 
+        motor[i].ahead();}
 }
 void motors::setback(){
-    motor1.back();
-    motor2.back();
-    motor3.back();
-    motor4.back();
+    for(int i=0;i<4;i++){ 
+        motor[i].back();}
 }
 void motors::setright(){
-    motor1.ahead();
-    motor2.back();
-    motor3.ahead();
-    motor4.back();
+    motor[0].ahead();
+    motor[1].back();
+    motor[2].ahead();
+    motor[3].back();
 
 }
 void motors::setleft(){
-    motor1.back();
-    motor2.ahead();
-    motor3.back();
-    motor4.ahead();
+    motor[0].back();
+    motor[1].ahead();
+    motor[2].back();
+    motor[3].ahead();
 }
 void motors::stop(){
-    motor1.stop();
-    motor2.stop();
-    motor3.stop();
-    motor4.stop();
-    setSpeed(0);
+    for(int i=0;i<4;i++){ 
+        motor[i].stop();}
+        setSpeed(0);
 }
 void motors::showSpeeds(){
-    double speedM1=motor1.getSpeed();
-    double speedM2=motor2.getSpeed();
-    double speedM3=motor3.getSpeed();
-    double speedM4=motor4.getSpeed();
+    double speedM1=motor[0].getSpeed();
+    double speedM2=motor[1].getSpeed();
+    double speedM3=motor[2].getSpeed();
+    double speedM4=motor[3].getSpeed();
     Serial.println("Velocidades:");
     Serial.print("Motor1:"); Serial.print(speedM1);
     Serial.print("Motor2:"); Serial.print(speedM2);
@@ -180,8 +192,11 @@ void motors::showSpeeds(){
     Serial.print("Motor4:"); Serial.println(speedM4);
 }
 void motors::resetTics(){
-    motor1.resetTics();
-    motor2.resetTics();
-    motor3.resetTics();
-    motor4.resetTics();
+    for(int i=0;i<4;i++){ 
+        motor[i].resetTics();}
+}
+void motors::setupVlx(const VlxID vlxId) {
+    const uint8_t index = static_cast<uint8_t>(vlxId);
+    vlx[index].setMux(Pins::vlxPins[index]);
+    vlx[index].begin();
 }

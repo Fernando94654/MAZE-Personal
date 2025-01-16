@@ -1,42 +1,26 @@
 #include <Arduino.h>
 #include "motors.h"
-#include "MPU6050.h"
-#include "Encoder.h"
-#include "VLX.h"
-#include "ultrasonico.h"
-#include <Adafruit_VL53L0X.h>
+// #include "Encoder.h"
+// #include "VLX.h"
+// #include <Adafruit_VL53L0X.h>
+// #include "BNO.H"
+// BNO bno;
+motors myMotors;
 // VLX vlx;
-ultrasonico myUltra;
-float targetAngle=0;
+// ultrasonico ultra;
+// ultrasonico myUltra;
+// float targetAngle=0;
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
-  // Serial.println("Iniciando...");
-  // vlx.begin();
-  initializeMPU6050();
+  myMotors.setupMotors();
 }
 void loop() {
-  //vlx.printDistance();
-  // uint16_t distance=vlx.getDistance();
-  // Serial.println(distance);
-  // myUltra.getDistance();
-  myMotors.ahead_ultra();
-  delay(3000);
-  // delay(5000);
-    // Serial.println("hola");
-  // getAngle();
-  // myMotors.setahead();
-  // myMotors.PID_speed(0.0,z_rotation,80);
-  // myMotors.showSpeeds();
-  // myMotors.setright();
-  // myMotors.setSpeed(90);
-   // uint8_t vel=150;
-  // myMotors.setSpeed(vel);
-  // while(true){ 
-  //   myMotors.ahead();
-  // }
-  
+  double ang=myMotors.bno.getOrientationX();
+  Serial.println(ang);
+  // myMotors.printAngle();
+  // double angulo=myMotors.printAngle();
+  // double angulo=bno.getOrientationX();
+  // Serial.println(angulo);
+  // Serial.println(z_rotation);
 }
-
-
-
