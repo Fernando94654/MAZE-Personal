@@ -7,7 +7,7 @@ PID::PID(double kp_,double ki_,double kd_){
     kd=kd_;
 }
 PID::PID(){
-    kp=3.5;
+    kp=10.0;
     ki=0.1;
     kd=0.8;
 }

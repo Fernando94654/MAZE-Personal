@@ -6,10 +6,11 @@ void motor_::initialize(int in_1,int in_2,int en,int numMotor){
     in1=in_1;
     in2=in_2;
     enable=en;
-    //attachInterrupt(digitalPinToInterrupt(encoderPins[numMotor]),frontLeftEncoder,RISING);
+    // attachInterrupt(digitalPinToInterrupt(encoderPins[numMotor]),frontLeftEncoder,RISING);
     pinMode(in1,OUTPUT);
     pinMode(in2,OUTPUT);
     pinMode(enable,OUTPUT);
+    pinMode(Pins::encoder[numMotor],INPUT);
     
 }
 

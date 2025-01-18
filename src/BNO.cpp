@@ -30,6 +30,8 @@ double BNO::getOrientationX() {
     angle=event_.orientation.x - phaseCorrection_;
     if(angle>180){
         z_rotation=angle-=360.0;
+    }else{
+        z_rotation=angle;
     }
     return event_.orientation.x - phaseCorrection_;
 }

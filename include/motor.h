@@ -3,7 +3,13 @@
 #include <Arduino.h>
 
 // void interruption();
-
+enum class MotorID {
+    kBackLeft = 0,
+    kFrontLeft = 1,
+    kBackRight = 2,
+    kFrontRight = 3,
+    kNone
+};
 class motor_{
 private:
     int in1;

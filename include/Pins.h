@@ -2,14 +2,17 @@
 #define PINS_H
 #include <Arduino.h>
 
-constexpr int encoderPins[2]={
-    19,//front left //
-    18//front right
-};
+
 constexpr int vlsPins[2]={
     
 };
 namespace Pins{
+    constexpr uint8_t encoder[4] = {
+        34, // BACK_LEFT 35    35
+        36, // FRONT_LEFT 39
+        35, // BACK_RIGHT 34   34
+        39  // FRONT_RIGHT 36
+    };
    const int ultrasonico[2]={
     2,//trig
     3,//echo

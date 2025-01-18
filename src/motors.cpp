@@ -1,15 +1,20 @@
 #include "motors.h"
 #include "Pins.h"
+#include "Encoder.h"
 motors::motors(){
     
 }
 void motors::setupMotors(){
-    bno.setupBNO();
     for(int i=0;i<4;i++){
         motor[i].initialize(Pins::digitalOne[i],Pins::digitalTwo[i],Pins::pwmPin[i],i);
     }
-    
-    targetAngle=90;
+    delay(500);
+    attachInterrupt(digitalPinToInterrupt(Pins::encoder[0]),Encoder::backRightEncoder,RISING);
+    attachInterrupt(digitalPinToInterrupt(Pins::encoder[1]),Encoder::backLeftEncoder,RISING);
+    attachInterrupt(digitalPinToInterrupt(Pins::encoder[2]),Encoder::frontRightEncoder,RISING);
+    attachInterrupt(digitalPinToInterrupt(Pins::encoder[3]),Encoder::frontLeftEncoder,RISING);
+    // bno.setupBNO();
+    targetAngle=0;
 }
 void motors::printAngle(){
     double angulo=bno.getOrientationX();
@@ -20,9 +25,12 @@ void motors::PID_speed(double setpoint,double angle, int reference_speed){
     double output=myPID.calculate_PID(setpoint,angle);
     int right_speed=reference_speed-output;
     int left_speed=reference_speed+output;
+    right_speed=constrain(right_speed,30,255);
+    left_speed=constrain(left_speed,30,255);
     for(int i=0;i<4;i++){
         motor[i].setSpeed((i%2==0) ? left_speed:right_speed);
     }
+    delay(20);
 }
 // void motors::ahead(){
 //     int targetDistance=240;
@@ -38,17 +46,19 @@ void motors::PID_speed(double setpoint,double angle, int reference_speed){
 //     resetTics();
 // }
 void motors::ahead(){
-    int targetDistance=240;
-    resetTics();
+    // int targetDistance=240;
+    // resetTics();
     setahead();
-    while(motor[0].tics<targetDistance){
+    // while(millis()<10000){//motor[0].tics<targetDistance
         angle=bno.getOrientationX();
-        float speed=changeSpeedMove(0.5,false,targetDistance);
-        PID_speed(targetAngle,angle,speed);
-        showSpeeds();
-    }
-    stop();
-    resetTics();
+        Serial.println(z_rotation);
+        float speed=70;
+        // float speed=changeSpeedMove(0.5,false,targetDistance);
+        PID_speed(targetAngle,z_rotation,speed);
+        // showSpeeds();
+    // }
+    // stop();
+    // resetTics();
 }
 // void motors::ahead_ultra(){
 //     double distance=vlx_FL.getDistance();
