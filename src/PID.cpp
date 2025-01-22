@@ -1,15 +1,22 @@
 #include "PID.H"
 #include <Arduino.h>
 
-PID::PID(double kp_,double ki_,double kd_){
+PID::PID(double kp_,double ki_,double kd_,double calculate_time_){
     kp=kp_;
     ki=ki_;
     kd=kd_;
+    calculate_time=calculate_time_;
 }
 PID::PID(){
-    kp=10.0;
+    kp=6.0;
     ki=0.1;
     kd=0.8;
+}
+void PID::changeConstants(double kp_,double ki_,double kd_,double calculate_time_){
+    kp=kp_;
+    ki=ki_;
+    kd=kd_;
+    calculate_time=calculate_time_;
 }
 double PID::calculate_PID(double setpoint, double input){
     double current_time=millis();

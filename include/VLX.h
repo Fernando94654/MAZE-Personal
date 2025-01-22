@@ -13,12 +13,20 @@ enum class VlxID {
     kFrontRight = 4,
     kNone
 };
+namespace vlxID{
+    constexpr uint8_t frontLeft=0;
+    constexpr uint8_t left=1;
+    constexpr uint8_t back=2;
+    constexpr uint8_t Right=3;
+    constexpr uint8_t frontRight=4;
+}
 class VLX{
 private:
     MUX mux_;
 public:
     Adafruit_VL53L0X VLX_ = Adafruit_VL53L0X();
     VL53L0X_RangingMeasurementData_t measure;
+    double distance;
     VLX();
     VLX(const uint8_t);
     void setMux(const uint8_t);

@@ -26,7 +26,7 @@ void VLX::updateDistance() {
 }
 double VLX::getDistance(){
     updateDistance();
-    double distance=measure.RangeMilliMeter/10;
+    distance=measure.RangeMilliMeter/10;
     return distance;
 }
 void VLX::printDistance(){

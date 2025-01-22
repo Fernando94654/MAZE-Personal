@@ -10,9 +10,10 @@ private:
     double last_time;
 
 public:
-    PID(double,double,double);
+    PID(double,double,double,double);
     PID();
     double calculate_PID(double,double);
+    void changeConstants(double,double,double,double);
     double calculate_time=20;
 
 };

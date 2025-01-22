@@ -1,4 +1,5 @@
 #include <Arduino.h>
+
 #include "Encoder.h"
 // #include "motors.h"
 
@@ -12,25 +13,27 @@
 // ultrasonico ultra;
 // ultrasonico myUltra;
 // float targetAngle=0;
+
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
+  // pinMode(15,OUTPUT);
   // delay(1000);
   // bno.setupBNO();
-  pinMode(2,OUTPUT);
+  // pinMode(2,OUTPUT);
+  // vlx.begin();
   robot.setupMotors();
 }
 void loop() {
-  // double ang=bno.getOrientationX();
-  // Serial.println(ang);
-  Serial.println(robot.motor[0].tics);
-  // myMotors.setback();
-  // myMotors.setSpeed(255);
-  digitalWrite(2,1);
-  // delay(2000);
-  // myMotors.printAngle();
-  // double angulo=myMotors.printAngle();
-  // double angulo=bno.getOrientationX();
-  // Serial.println(angulo);
-  // Serial.println(z_rotation);
+  // robot.setback();
+  // robot.setSpeed(250);
+
+  robot.ahead();
+  delay(700);
+  robot.ahead();
+  delay(700);
+  robot.right();
+  delay(700);
+  // analogWrite(15,250);
+  
 }

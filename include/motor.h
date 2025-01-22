@@ -14,8 +14,8 @@ class motor_{
 private:
     int in1;
     int in2;
-    int enable;
-    double speed;
+    uint8_t enable;
+    uint32_t speed;
     
 public:
     volatile int tics;

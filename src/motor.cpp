@@ -2,6 +2,7 @@
 #include <Arduino.h>
 #include "Pins.h"
 #include "Encoder.h"
+
 void motor_::initialize(int in_1,int in_2,int en,int numMotor){
     in1=in_1;
     in2=in_2;
@@ -27,6 +28,7 @@ void motor_::setSpeed(int velocity){
     speed=velocity;
     speed=constrain(speed,0,255);
     analogWrite(enable,speed);
+    delay(1);//no quitar(no se porque pero si lo quitas no jala :|..)
 }
 void motor_::ahead(){
     digitalWrite(in1,1);

@@ -2,18 +2,20 @@
 #include "Pins.h"
 #include "Encoder.h"
 motors::motors(){
-    
 }
 void motors::setupMotors(){
     for(int i=0;i<4;i++){
         motor[i].initialize(Pins::digitalOne[i],Pins::digitalTwo[i],Pins::pwmPin[i],i);
+        Serial.println(Pins::pwmPin[i]);
+        myPID[i].changeConstants(0.5,0.01,0.05,0);
     }
     delay(500);
     attachInterrupt(digitalPinToInterrupt(Pins::encoder[0]),Encoder::backRightEncoder,RISING);
     attachInterrupt(digitalPinToInterrupt(Pins::encoder[1]),Encoder::backLeftEncoder,RISING);
     attachInterrupt(digitalPinToInterrupt(Pins::encoder[2]),Encoder::frontRightEncoder,RISING);
     attachInterrupt(digitalPinToInterrupt(Pins::encoder[3]),Encoder::frontLeftEncoder,RISING);
-    // bno.setupBNO();
+    bno.setupBNO();
+    // setSpeed(70);
     targetAngle=0;
 }
 void motors::printAngle(){
@@ -22,7 +24,8 @@ void motors::printAngle(){
 }
 void motors::PID_speed(double setpoint,double angle, int reference_speed){
     //double input=setpoint+calculateAngularDistance();
-    double output=myPID.calculate_PID(setpoint,angle);
+    PID PID;
+    double output=PID.calculate_PID(setpoint,angle);
     int right_speed=reference_speed-output;
     int left_speed=reference_speed+output;
     right_speed=constrain(right_speed,30,255);
@@ -32,7 +35,29 @@ void motors::PID_speed(double setpoint,double angle, int reference_speed){
     }
     delay(20);
 }
-// void motors::ahead(){
+void motors::PID_encoders(){
+    double speed_setpoint=6;
+    int reference_pwm[4];
+    double lastTics[4];
+    for(int i=0;i<4;i++){
+        reference_pwm[i]=motor[i].getSpeed();
+        lastTics[i]=motor[i].tics;
+    }
+    delay(100);
+    for(int i=0;i<4;i++){
+        double speedTics=motor[i].tics-lastTics[i];
+        double error=myPID[i].calculate_PID(speed_setpoint,speedTics);
+        int speed=reference_pwm[i]+error;
+        if(i==2){
+            motor[i].setSpeed(speed);
+            motor[0].setSpeed(speed);
+        }else if(i==3){
+            motor[i].setSpeed(speed);
+            motor[1].setSpeed(speed);
+        }
+    }
+}
+// void motors::ahead(){//tics
 //     int targetDistance=240;
 //     resetTics();
 //     setahead();
@@ -45,20 +70,19 @@ void motors::PID_speed(double setpoint,double angle, int reference_speed){
 //     stop();
 //     resetTics();
 // }
-void motors::ahead(){
+void motors::ahead(){//prueba
     // int targetDistance=240;
-    // resetTics();
+    resetTics();
     setahead();
-    // while(millis()<10000){//motor[0].tics<targetDistance
+    while(motor[3].tics<kTicsPerTile){//millis()<10000
         angle=bno.getOrientationX();
         Serial.println(z_rotation);
-        float speed=70;
-        // float speed=changeSpeedMove(0.5,false,targetDistance);
-        PID_speed(targetAngle,z_rotation,speed);
+        float speed=changeSpeedMove(0.17,false,kTicsPerTile);
+        PID_speed(targetAngle,(targetAngle==0 ? z_rotation:angle),speed);
         // showSpeeds();
-    // }
-    // stop();
-    // resetTics();
+    }
+    stop();
+    resetTics();
 }
 // void motors::ahead_ultra(){
 //     double distance=vlx_FL.getDistance();
@@ -73,6 +97,45 @@ void motors::ahead(){
 //     }
 //     stop();
 // }
+void motors::ahead_ultra(){//como  quisiera
+    double distance=vlx[vlxID::frontLeft].getDistance();
+    resetTics();
+    double currentTics=motor[2].tics;
+    if(distance<maxVlxDistance){
+        int targetDistances[]={edgeTileDistance,30+edgeTileDistance,60+edgeTileDistance,90+edgeTileDistance};
+        int targetDistance=findNearest(distance,targetDistances,4);
+        setahead();
+        while(distance>targetDistance){
+            float changeAngle=nearWall();
+            distance=vlx[vlxID::frontLeft].getDistance();
+            bno.getOrientationX();
+            float speed=changeSpeedMove(2,false,targetDistance);
+            PID_speed(targetAngle+changeAngle,(targetAngle==0 ? z_rotation:angle),speed);
+            showSpeeds();
+        }
+    }else{
+        while(currentTics<kTicsPerTile){
+            float changeAngle=nearWall();
+            distance=vlx[vlxID::frontLeft].getDistance();
+            float speed=changeSpeedMove(0.5,false,kTicsPerTile);
+            PID_speed((targetAngle+changeAngle),(targetAngle==0 ? z_rotation:angle),speed);
+            showSpeeds();
+        }
+    }
+    stop();resetTics();
+}
+float motors::nearWall(){
+    float changeAngle=0;
+    vlx[vlxID::left].getDistance();
+    vlx[vlxID::Right].getDistance();
+    if(vlx[vlxID::left].distance<minDisToWall){
+        changeAngle=+(maxChangeAngle-(maxChangeAngle/minDisToWall*vlx[vlxID::left].distance));//ecuacion de la recta
+    }
+    if(vlx[vlxID::Right].distance<minDisToWall){
+        changeAngle=-(maxChangeAngle-(maxChangeAngle/minDisToWall*vlx[vlxID::Right].distance));//ecuacion de la recta
+    }
+    return changeAngle;
+}
 int motors::findNearest(int number,int numbers[],int size){
     int nearest=numbers[0];
     float minDifference=abs(number-numbers[0]);
@@ -91,11 +154,11 @@ void motors::back(){
     setback();
 }
 void motors::right(){
+    targetAngle=targetAngle+90;
+    rotate(targetAngle);
     if(targetAngle==360){
         targetAngle=0;
     }
-    targetAngle=targetAngle+90;
-    rotate(targetAngle);
 }
 void motors::left(){
     if(targetAngle==0){
@@ -140,7 +203,7 @@ void motors::rotate(float deltaAngle){
     (rightAngularDistance<=leftAngularDistance) ? setright():setleft();
     currentAngle=hexadecimal ? angle:z_rotation;
     while (currentAngle<minInterval||currentAngle>maxInterval){
-        changeSpeedMove(0.5,true,0);
+        changeSpeedMove(1,true,0);
         bno.getOrientationX();
         currentAngle= hexadecimal ? angle:z_rotation;
         Serial.println(angle);
@@ -149,14 +212,14 @@ void motors::rotate(float deltaAngle){
 }
 float motors::changeSpeedMove(float constant,bool rotate,int targetDistance){
     float speed;
-    float minSpeed=20;
     if(rotate==true){
-        speed=minSpeed+constant*(abs(targetAngle-angle));
+        double missingAngle=abs(targetAngle-angle);
+        speed=map(missingAngle,90,0,kMaxSpeedRotate,kMinSpeedRotate);
         setSpeed(speed);
         return 0;
     }else{
-        speed=minSpeed+constant*(abs(targetDistance-vlx[0].getDistance()));//motor1.tics
-        speed=constrain(speed,20,100);
+        speed=map(motor[3].tics,0,kTicsPerTile,kMaxSpeedFormard,kMinSpeedFormard);
+        // speed=minSpeed+constant*(abs(targetDistance-vlx[vlxID::frontRight].getDistance()));//motor1.tics
         return speed;
     }
 }
